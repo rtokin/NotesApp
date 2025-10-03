@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import './Note.css';
 
 const Note = ({ note, onEdit, onDelete }) => {
+    // Добавляем проверку на существование note
+    if (!note) {
+        return <div className="note">Note is missing</div>;
+    }
+
     const [isEditing, setIsEditing] = useState(false);
     const [content, setContent] = useState(note.content);
 
