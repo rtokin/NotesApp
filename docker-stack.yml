@@ -1,21 +1,18 @@
 version: '3.8'
 
 services:
-  nginx:
+  nginx-proxy:
     image: notesapp-nginx
     build: ./nginx
     ports:
       - "80:80"
-    depends_on:
-      - auth-service
-      - notes-service
     networks:
       - notesapp-network
     deploy:
       replicas: 1
-      restart_policy:
-        condition: any
-        delay: 5s
+      placement:
+        constraints:
+          - node.role == manager
 
   auth-service:
     image: notesapp-auth-service
@@ -26,12 +23,12 @@ services:
     networks:
       - notesapp-network
     deploy:
-      replicas: 2
-      restart_policy:
-        condition: any
+      replicas: 3
       update_config:
-        parallelism: 1
+        parallelism: 2
         delay: 10s
+      restart_policy:
+        condition: on-failure
 
   notes-service:
     image: notesapp-notes-service
@@ -42,12 +39,12 @@ services:
     networks:
       - notesapp-network
     deploy:
-      replicas: 2
-      restart_policy:
-        condition: any
+      replicas: 3
       update_config:
-        parallelism: 1
+        parallelism: 2
         delay: 10s
+      restart_policy:
+        condition: on-failure
 
 networks:
   notesapp-network:
