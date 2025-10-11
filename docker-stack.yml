@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  nginx-proxy:
+    image: notesapp-nginx
+    build: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - notesapp-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  auth-service:
+    image: notesapp-auth-service
+    build: ./auth-service
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+    networks:
+      - notesapp-network
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  notes-service:
+    image: notesapp-notes-service
+    build: ./notes-service
+    environment:
+      - PORT=3002
+      - NODE_ENV=production
+    networks:
+      - notesapp-network
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+networks:
+  notesapp-network:
+    driver: overlay
