@@ -1,4 +1,4 @@
-name: React/Vite Build Check
+name: React/Vite CI
 
 on:
   push:
@@ -10,21 +10,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
+    - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
-        node-version: '18.x'
+        node-version: ${{ matrix.node-version }}
         cache: 'npm'
         
     - name: Install dependencies
-      run: npm install
+      run: npm ci
       
     - name: Build project
       run: npm run build
       
     - name: Success
-      run: echo "✅ Build completed successfully!"
+      run: echo "✅ Build completed successfully with Node.js ${{ matrix.node-version }}!"
